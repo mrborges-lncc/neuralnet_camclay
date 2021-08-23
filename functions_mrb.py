@@ -91,7 +91,6 @@ def hist_error_rel(a,nbins,namep):
 
     media = np.mean(a)
     sigma = np.std(a)
-    print(sigma,media)
     z = np.asarray(y)
     sz = z.size
     ymax = -10e30

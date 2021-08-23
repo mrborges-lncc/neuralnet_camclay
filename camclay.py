@@ -127,11 +127,11 @@ predict = model.predict(xteste)
 predict = np.reshape(predict,(np.size(predict),))
 
 # Return to original data #####################################################
-x    = (x)*(xmax - xmin) + xmin
-y    = (y)*(ymax - ymin) + ymin
-xteste = (xteste)*(xmax - xmin)  + xmin
-yteste = (yteste )*(ymax - ymin) + ymin
-predict= (predict)*(ymax - ymin) + ymin
+x    = x*(xmax - xmin) + xmin
+y    = y*(ymax - ymin) + ymin
+xteste = xteste *(xmax - xmin) + xmin
+yteste = yteste *(ymax - ymin) + ymin
+predict= predict*(ymax - ymin) + ymin
 er    = np.abs(predict - yteste)/np.abs(yteste)
 erroR = np.mean(er)
 
