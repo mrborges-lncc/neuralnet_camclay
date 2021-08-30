@@ -54,11 +54,11 @@ ymin = np.min(y)
 x    = (x - xmin)/(xmax - xmin)
 y    = (y - ymin)/(ymax - ymin)
 # Sets ########################################################################
-rate = 0.5
-rt   = 0.5*(1 - rate)
-ntrain = np.int(n*rate)
-nteste = np.int(n*rt)
-nvalid = np.int(n - (ntrain + nteste))
+rtrain = 0.5
+rvalid = 0.4
+ntrain = np.int(n*rtrain)
+nvalid = np.int(n*rvalid)
+nteste = np.int(n - (nvalid + ntrain))
 lista = list(range(n))
 random.shuffle(lista)
 xvalid = x[lista[0:nvalid],:]
@@ -71,7 +71,7 @@ ytrain = y[lista[nvalid+nteste:-1]]
 inputshape = (2,)
 lrate      = 0.0001
 num_class  = 1
-epochs     = 250
+epochs     = 400
 batch_size = 64
 model = tf.keras.models.Sequential([
     tf.keras.layers.Flatten(input_shape=inputshape),
@@ -127,13 +127,13 @@ predict = model.predict(xteste)
 predict = np.reshape(predict,(np.size(predict),))
 
 # Return to original data #####################################################
-x    = x*(xmax - xmin) + xmin
-y    = y*(ymax - ymin) + ymin
+x      = x*(xmax - xmin) + xmin
+y      = y*(ymax - ymin) + ymin
 xteste = xteste *(xmax - xmin) + xmin
 yteste = yteste *(ymax - ymin) + ymin
 predict= predict*(ymax - ymin) + ymin
-er    = np.abs(predict - yteste)/np.abs(yteste)
-erroR = np.mean(er)
+er     = np.abs(predict - yteste)/np.abs(yteste)
+erroR  = np.mean(er)
 
 hist_error_rel(er,80,namep)
 
@@ -142,6 +142,32 @@ print('\nErro relativo..........: {:5.3}%'.format(erroR*100))
 print('Erro relativo máximo...: {:5.3}%'.format(np.max(er)*100))
 print('==============================================\n')
 
+# Data "fake" (not in the original data) ######################################
+n = 100
+xfake = np.zeros((n,2))
+a = 1.00
+b = 0.20
+m = (b-a)/n
+for i in range(n):
+    xfake[i,0] = a + (i)*m
+    xfake[i,1] = a
+xfake1 = np.zeros((n,2))
+a = 0.60
+b = 0.20
+m = (b-a)/n
+for i in range(n):
+    xfake1[i,0] = a + (i)*m
+    xfake1[i,1] = a
+xfake  = (xfake - xmin)/(xmax - xmin)
+yfake  = model.predict(xfake)
+yfake  = np.reshape(yfake,(np.size(yfake),))
+xfake  = xfake*(xmax - xmin) + xmin
+yfake  = yfake*(ymax - ymin) + ymin
+xfake1 = (xfake1 - xmin)/(xmax - xmin)
+yfake1 = model.predict(xfake1)
+yfake1 = np.reshape(yfake1,(np.size(yfake1),))
+xfake1 = xfake1*(xmax - xmin) + xmin
+yfake1 = yfake1*(ymax - ymin) + ymin
 # Plot data ###################################################################
 fig = plt.figure(constrained_layout=True)
 fig, axs = plt.subplots(nrows=1,ncols=2, constrained_layout=True)
@@ -155,6 +181,8 @@ axs[0].set_xlabel('$p_{mean}\ (MPa)$', fontsize=18, weight='bold', color='k')
 axs[1].plot(xteste[:,0],predict,'bo',label='predict')
 #axs[1].plot(xteste[:,0],yteste,'r+',label='true')
 axs[1].plot(x[:,0],y,'tab:orange',linewidth=3,label='true data')
+axs[1].plot(xfake[:,0],yfake,'-k',linewidth=3,label='fake data 0')
+axs[1].plot(xfake1[:,0],yfake1,'-k',linewidth=3,label='fake data 1')
 axs[1].set_title('CamClay',fontsize=18)
 axs[1].tick_params(axis="x", labelsize=16)
 axs[1].tick_params(axis="y", labelsize=16)
@@ -170,11 +198,13 @@ fig = plt.figure(constrained_layout=True)
 ax  = plt.axes(projection='3d')
 ax.plot3D(x[:,0],x[:,1],y[:],'tab:orange', linewidth=1.5)
 #ax.scatter(x[:,0],x[:,1],y[:],cmap='viridis', linewidth=0.5)
-ax.scatter(xteste[:,0],xteste[:,1],predict, color='tab:blue', linewidth=0.5)
+ax.scatter(xteste[:,0],xteste[:,1],predict, color='tab:blue', linewidth=1)
+ax.scatter(xfake[:,0],xfake[:,1],yfake, color='k', linewidth=1)
+ax.scatter(xfake1[:,0],xfake1[:,1],yfake1, color='k', linewidth=1)
 ax.set_xlabel('$p_{mean}\ (MPa)$')
 ax.set_ylabel('$p_0\ (MPa)$')
 ax.set_zlabel('$Void\ ratio$')
-ax.view_init(5, -140)
+ax.view_init(20, 35)
 name = 'figuras/camclay_network3d.png'
 plt.savefig(name, transparent=True, dpi=300)
 plt.show()
