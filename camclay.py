@@ -71,7 +71,7 @@ ytrain = y[lista[nvalid+nteste:-1]]
 inputshape = (2,)
 lrate      = 0.0001
 num_class  = 1
-epochs     = 400
+epochs     = 500
 batch_size = 64
 model = tf.keras.models.Sequential([
     tf.keras.layers.Flatten(input_shape=inputshape),
@@ -207,6 +207,7 @@ ax.set_xlabel('$p_{mean}\ (MPa)$')
 ax.set_ylabel('$p_0\ (MPa)$')
 ax.set_zlabel('$Void\ ratio$')
 ax.view_init(20, 35)
+ax.view_init(5, 35)
 name = 'figuras/camclay_network3d.png'
 plt.savefig(name, transparent=True, dpi=300)
 plt.show()
